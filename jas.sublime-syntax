@@ -1,0 +1,85 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: JAS
+comment: "Java Assembly Syntax Highlighting (Based on SPARC Syntax Highlighting)"
+file_extensions:
+  - jas
+scope: source.jas
+contexts:
+  main:
+    #######################################################
+    # From SPARC Syntax Definition:
+    - match: ^/\* =(\s*.*?)\s*= \*/$\n?
+      comment: Shamelessly stolen from c.tmLanguage
+      scope: comment.block.jas
+      captures:
+        1: meta.toc-list.banner.block.jas
+    - match: /\*
+      comment: Shamelessly stolen from c.tmLanguage
+      captures:
+        0: punctuation.definition.comment.jas
+      push:
+        - meta_scope: comment.block.jas
+        - match: \*/
+          captures:
+            0: punctuation.definition.comment.jas
+          pop: true
+    - match: \*/.*\n
+      comment: Shamelessly stolen from c.tmLanguage
+      scope: invalid.illegal.stray-comment-end.jas
+    - match: ^// =(\s*.*?)\s*=\s*$\n?
+      comment: Shamelessly stolen from c.tmLanguage
+      scope: comment.line.banner.jas
+      captures:
+        1: meta.toc-list.banner.line.jas
+    - match: "//"
+      comment: JAS comments
+      captures:
+        0: punctuation.definition.comment.jas
+      push:
+        - meta_scope: comment.line.jas
+        - match: $\n?
+          pop: true
+    - match: '"'
+      comment: Double quote strings
+      push:
+        - meta_scope: string.quoted.double.jas
+        - match: '"'
+          pop: true
+        - match: '\\(\\|[abefnprtv''"?]|[0-3]\d{,2}|[4-7]\d?|x[a-fA-F0-9]{,2}|u[a-fA-F0-9]{,4}|U[a-fA-F0-9]{,8})'
+          comment: Shamelessly stolen from c.tmLanguage
+          scope: constant.character.escape.jas
+        - match: \\.
+          comment: Shamelessly stolen from c.tmLanguage
+          scope: invalid.illegal.unknown-escape.jas
+        - match: |-
+            (?x)%
+              (\d+\$)?   # field (argument #)
+              [#0\- +']*                           # flags
+              [,;:_]?                              # separator character (AltiVec)
+              ((-?\d+)|\*(-?\d+\$)?)?              # minimum field width
+              (\.((-?\d+)|\*(-?\d+\$)?)?)?         # precision
+              (hh|h|ll|l|j|t|z|q|L|vh|vl|v|hv|hl)? # length modifier
+              [diouxXDOUeEfFgGaACcSspn%]           # conversion type
+          comment: Shamelessly stolen from c.tmLanguage
+          scope: constant.other.placeholder.jas
+        - match: "%"
+          comment: Shamelessly stolen from c.tmLanguage
+          scope: invalid.illegal.placeholder.jas
+    #######################################################
+    - match: '\b(?i)(BIPUSH|DUP|GOTO|IADD|IAND|IFEQ|IFLT|IF_ICMPEQ|IINC|ILOAD|INVOKEVIRTUAL|IOR|IRETURN|ISTORE|ISUB|LDC_W|NOP|POP|SWAP|WIDE|INEG|HALT|IFEVEN|POWER)(?-i)\b'
+      comment: Regular opcodes
+      scope: keyword.control.jas
+    - match: '.(constant|end-constant|main|var|end-var|end-main|method|end-method)'
+      comment: Directives
+      scope: support.function.jas
+    - match: '\S*:'
+      comment: Labels
+      scope: entity.name.function.jas
+    - match: '\S*(?=\()'
+      comment: Methods
+      scope: storage.type.jas
+    - match: '\b\d+\b'
+      comment: Numbers
+      scope: constant.numeric.jas
